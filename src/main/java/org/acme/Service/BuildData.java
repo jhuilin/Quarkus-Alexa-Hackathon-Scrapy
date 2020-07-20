@@ -1,6 +1,8 @@
 package org.acme.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.scheduler.Scheduled;
+import jdk.jshell.execution.Util;
 import org.acme.Models.Product;
 import org.acme.Utils.Utils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -11,6 +13,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -26,68 +30,30 @@ public class BuildData {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @PostConstruct
+    private static final Logger log = LoggerFactory.getLogger(BuildData.class);
+
+    @Scheduled(cron="0 15 10 * * ?")
     public void fetch() throws Exception {
-        fetchMilk();
-        fetchBeef();
-        fetchCookies();
-        fetchJuice();
-        System.out.println("post construct");
-    }
-
-    public void fetchMilk() throws Exception {
-        List<Product> milks = Utils.parse("milk");
-        Utils.MilkCount = milks.size();
-        if (!testExistIndex(Utils.MILK)) {
-            createIndex(Utils.MILK);
-            buildData(Utils.MILK, milks);
-            System.out.println("milk create");
-        } else {
-            updateData(Utils.MILK, milks);
-            System.out.println("milk update");
+        for (String key : Utils.KEYWORDS){
+            String keyWord = key.toLowerCase();
+            List<Product> list = Utils.parse(keyWord);
+            Utils.COUNT.put(keyWord, list.size());
+            if (!testExistIndex(keyWord)){
+                createIndex(keyWord);
+                buildData(keyWord, list);
+                log.error(keyWord + " created");
+                System.out.println(keyWord + " created");
+            } else {
+                updateData(keyWord, list);
+                log.error(keyWord + " updated");
+                System.out.println(keyWord + " updated");
+            }
         }
+        log.error("data stores in ELS");
+        log.error("auto scheduler");
+        System.out.println("auto scheduler");
+
     }
-
-    public void fetchBeef() throws Exception {
-        List<Product> beefs = Utils.parse("beef");
-        Utils.BeefCount = beefs.size();
-        if (!testExistIndex(Utils.BEEF)) {
-            createIndex(Utils.BEEF);
-            buildData(Utils.BEEF, beefs);
-            System.out.println("beef create");
-        } else {
-            updateData(Utils.BEEF, beefs);
-            System.out.println("beef update");
-        }
-    }
-
-    public void fetchJuice() throws Exception {
-        List<Product> juices = Utils.parse("juice");
-        Utils.JuiceCount = juices.size();
-        if (!testExistIndex(Utils.JUICE)) {
-            createIndex(Utils.JUICE);
-            buildData(Utils.JUICE, juices);
-            System.out.println("juice create");
-        } else {
-            updateData(Utils.JUICE, juices);
-            System.out.println("juice update");
-        }
-    }
-
-    public void fetchCookies() throws Exception {
-        List<Product> cookies = Utils.parse("cookies");
-        Utils.CookiesCount = cookies.size();
-        if (!testExistIndex(Utils.COOKIES)) {
-            createIndex(Utils.COOKIES);
-            buildData(Utils.COOKIES, cookies);
-            System.out.println("juice create");
-        } else {
-            updateData(Utils.COOKIES, cookies);
-            System.out.println("juice update");
-        }
-    }
-
-
 
     private boolean testExistIndex(String name) throws IOException {
         GetIndexRequest request = new GetIndexRequest(name);

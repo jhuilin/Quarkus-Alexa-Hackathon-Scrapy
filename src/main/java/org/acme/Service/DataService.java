@@ -5,11 +5,14 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,89 +22,30 @@ public class DataService {
     @Inject
     private RestHighLevelClient restHighLevelClient;
 
-//    public List<Map<String, Object>> getBeef() throws IOException {
-//        List<Map<String, Object>> list = new ArrayList<>();
-//        for (int i = 0; i <= Utils.BeefCount + 10; ++i) {
-//            if (getList(Utils.BEEF, "" + (i + 1)) != null)
-//                list.add(getList(Utils.BEEF, "" + (i + 1)));
-//            else
-//                break;
-//        }
-////        for (Map<String, Object> stringObjectMap : list) {
-////            System.out.println(stringObjectMap.toString());
-////        }
-//        System.out.println("search from beef!");
-//        return list;
-//    }
-    public List<Map<String, Object>> getBeef() throws IOException {
-        List<Map<String, Object>> list = new ArrayList<>();
-        int index = 0;
-        while (true){
-            Map<String, Object> var = getList(Utils.BEEF, "" + (++index));
-            if (var != null){
-                list.add(var);
-            } else {
-                break;
-            }
-        }
-        for (Map<String, Object> stringObjectMap : list) {
-            System.out.println(stringObjectMap.toString());
-        }
-        System.out.println("search from beef!");
-        return list;
-    }
+    @Inject
+    private BuildData buildData;
 
-    public List<Map<String, Object>> getMilk() throws IOException {
-        List<Map<String, Object>> list = new ArrayList<>();
-        int index = 0;
-        while (true){
-            Map<String, Object> var = getList(Utils.MILK, "" + (++index ));
-            if (var != null){
-                list.add(var);
-            } else {
-                break;
-            }
-        }
-        for (Map<String, Object> stringObjectMap : list) {
-            System.out.println(stringObjectMap.toString());
-        }
-        System.out.println("search from milk!");
-        return list;
-    }
+    public static boolean isExecute = false;
 
-    public List<Map<String, Object>> getJuice() throws IOException {
-        List<Map<String, Object>> list = new ArrayList<>();
-        int index = 0;
-        while (true){
-            Map<String, Object> var = getList(Utils.JUICE, "" + (++index ));
-            if (var != null){
-                list.add(var);
-            } else {
-                break;
-            }
-        }
-        for (Map<String, Object> stringObjectMap : list) {
-            System.out.println(stringObjectMap.toString());
-        }
-        System.out.println("search from juice!");
-        return list;
-    }
+    private static final Logger log = LoggerFactory.getLogger(DataService.class);
 
-    public List<Map<String, Object>> getCookies() throws IOException {
+    public List<Map<String, Object>> getData(String key) throws Exception {
+        prepareData();
         List<Map<String, Object>> list = new ArrayList<>();
-        int index = 0;
-        while (true){
-            Map<String, Object> var = getList(Utils.COOKIES, "" + (++index ));
+        String keyWord = key.toLowerCase();
+        if (!Utils.COUNT.containsKey(keyWord))
+            return new LinkedList<>();
+        int size = Utils.COUNT.get(keyWord);
+        for (int i = 0; i < size; ++i){
+            Map<String, Object> var = getList(keyWord, "" + (i + 1));
             if (var != null){
                 list.add(var);
             } else {
                 break;
             }
         }
-        for (Map<String, Object> stringObjectMap : list) {
-            System.out.println(stringObjectMap.toString());
-        }
-        System.out.println("search from cookies!");
+        System.out.println("search from "+ keyWord);
+        log.error("search from "+ keyWord);
         return list;
     }
 
@@ -112,5 +56,12 @@ public class DataService {
             return getResponse.getSourceAsMap();
         }
         return null;
+    }
+
+    private void prepareData() throws Exception {
+        if (isExecute == false){
+            buildData.fetch();
+            isExecute = true;
+        }
     }
 }

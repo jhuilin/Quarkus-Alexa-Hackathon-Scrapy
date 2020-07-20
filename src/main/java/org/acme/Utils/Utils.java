@@ -12,16 +12,8 @@ import java.util.*;
 
 public class Utils {
 
-    public static int MilkCount = 0;
-    public static int BeefCount = 0;
-    public static int JuiceCount = 0;
-    public static int CookiesCount = 0;
-    public static final String MILK = "milk";
-    public static final String BEEF = "beef";
-    public static final String JUICE = "juice";
-    public static final String COOKIES = "cookies";
-
-
+    public static String[] KEYWORDS = new String[]{"milk", "beef", "juice", "cookies"};
+    public static Map<String, Integer> COUNT = new HashMap<>();
 
 
     public static List<Product> parse(String keyWord) throws Exception {

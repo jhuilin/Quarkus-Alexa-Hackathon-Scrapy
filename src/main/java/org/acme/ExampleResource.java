@@ -1,6 +1,7 @@
 package org.acme;
 
 import org.acme.Service.DataService;
+import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -17,51 +18,12 @@ public class ExampleResource {
     DataService dataService;
 
     @GET
-    @Path("/beef")
+    @Path("/{keyWord}")
     @Produces(MediaType.TEXT_PLAIN)
-    public List<Map<String, Object>> getBeef(){
-        List<Map<String, Object>> beef = null;
-        try{
-            beef = dataService.getBeef();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return beef;
-    }
-
-    @GET
-    @Path("/milk")
-    @Produces(MediaType.TEXT_PLAIN)
-    public List<Map<String, Object>> getMilk(){
-        List<Map<String, Object>> milk = null;
-        try{
-            milk = dataService.getMilk();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return milk;
-    }
-
-    @GET
-    @Path("/cookies")
-    @Produces(MediaType.TEXT_PLAIN)
-    public List<Map<String, Object>> getCookies(){
+    public List<Map<String, Object>> getData(@PathParam String keyWord){
         List<Map<String, Object>> list = null;
         try{
-            list = dataService.getCookies();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    @GET
-    @Path("/juice")
-    @Produces(MediaType.TEXT_PLAIN)
-    public List<Map<String, Object>> getJuice(){
-        List<Map<String, Object>> list = null;
-        try{
-            list = dataService.getJuice();
+            list = dataService.getData(keyWord);
         } catch (Exception e){
             e.printStackTrace();
         }
