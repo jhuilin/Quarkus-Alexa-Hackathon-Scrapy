@@ -12,11 +12,13 @@ import javax.enterprise.inject.Produces;
 @ApplicationScoped
 public class Config {
 
+    private String host;    // set your own elastic search url
+
 
     @Produces
     RestHighLevelClient client = new RestHighLevelClient(
             RestClient.builder(
-                    new HttpHost("3.22.175.238", 9200, "http")));
+                    new HttpHost(host, 9200, "http")));
 
 
 }
