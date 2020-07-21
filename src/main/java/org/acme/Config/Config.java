@@ -11,7 +11,7 @@ import javax.enterprise.inject.Produces;
 @ApplicationScoped
 public class Config {
 
-    private String host = "3.22.175.238";    // set your own elastic search url
+    private String host = "";    // set your own elastic search url
 
 
     @Produces
